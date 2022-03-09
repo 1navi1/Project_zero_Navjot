@@ -72,7 +72,7 @@ public class BankApplicationDriver {
 				System.out.print("Enter Password: ");
 				password = s.next();
 			
-				User user = new User(id++, fname,lname,username,password,UserType.CUSTOMER);
+				User user = new User(id++, username,password,fname,lname,UserType.CUSTOMER);
 				userService.register(user); 
 				break;
 			case 2:
