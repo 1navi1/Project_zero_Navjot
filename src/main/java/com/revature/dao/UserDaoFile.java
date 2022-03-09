@@ -18,13 +18,14 @@ public class UserDaoFile implements UserDao {
 
 	public static String fileLocation = "src\\users.txt";
 	private static File userFile = new File(fileLocation);
-	private static int id =0;
+	//private static int id =0;
 	public static List<User> userList = new ArrayList<>();
 
 	public User addUser(User user) {
 
 		try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(userFile))) {
 			oos.writeObject(user);
+			
 			System.out.println("User Successfully Registered");
 		} catch (IOException e) {
 			e.printStackTrace();
