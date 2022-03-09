@@ -98,7 +98,7 @@ public class AccountTests extends PointWatcher {
 		verify(dao, times(1)).updateAccount(testActTwo);
 	}
 	
-	@Test(expected=UnsupportedOperationException.class)
+	@Test(expected=OverdraftException.class)
 	@Points(1)
 	public void testInvalidTransfer() {
 		Account testActOne = getNewApprovedAccount();
