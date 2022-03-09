@@ -42,6 +42,8 @@ public class AccountDaoDB implements AccountDao {
 		}
 		return a;
 	}
+	
+	//This method will get account by id
 
 	public Account getAccount(Integer actId) {
 		String query = "select * from account where id=" +actId.intValue();
