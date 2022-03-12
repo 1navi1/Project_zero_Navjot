@@ -26,14 +26,21 @@ public class AccountDaoDB implements AccountDao {
 	public Account addAccount(Account a) {
 		// TODO Auto-generated method stub
 		int status = 0;
-		String query = "insert into account (owner_id, balance,account_type,approved) values(?,?,?,?)";
+		String query = "insert into account (accountId,ownerId, balance,account_type) values(?,?,?,?)";
 		try {
 			pstmt = conn.prepareStatement(query);
 			pstmt.setInt(1, a.getOwnerId());
-			pstmt.setDouble(2, a.getBalance());
-			pstmt.setObject(3, a.getType().toString());
-			//pstmt.setBoolean(4, a.isApproved());
-			pstmt.executeUpdate();
+			pstmt.setInt(2, a.getOwnerId());
+			pstmt.setDouble(3, a.getBalance());
+			//if (a.getType().equals(Account.AccountType.CHECKING)){
+				//pstmt.setString(3, "CHECKING");
+			//} else {
+			//	pstmt.setString(3, "SAVINGS");
+			//}
+
+			pstmt.setObject(4, a.getType().toString());
+			//pstmt.setBoolean(5, a.isApproved());
+			status = pstmt.executeUpdate();
 			if(status>0) {
 				System.out.println("Account created and waiting for approval!");
 			}
@@ -46,14 +53,14 @@ public class AccountDaoDB implements AccountDao {
 	//This method will get account by id
 
 	public Account getAccount(Integer actId) {
-		String query = "select * from account where id=" +actId.intValue();
+		String query = "select * from account where accountId=" +actId.intValue();
 		Account a = new Account();		
 		try {
 			stmt = conn.createStatement();
 			rs = stmt.executeQuery(query);
 			if(rs.next());
-			a.setId(rs.getInt("id"));
-			a.setOwnerId(rs.getInt("owner_id"));
+			a.setId(rs.getInt("accountId"));
+			a.setOwnerId(rs.getInt("ownerId"));
 			a.setBalance(rs.getDouble("balance"));
 			a.setType(rs.getString("account_type"));
 			a.setApproved(rs.getBoolean("approved"));
@@ -74,8 +81,8 @@ public class AccountDaoDB implements AccountDao {
 			while(rs.next()) {
 				Account a = new Account();	
 			
-				a.setId(rs.getInt("id"));
-				a.setOwnerId(rs.getInt("owner_id"));
+				a.setId(rs.getInt("accountId"));
+				a.setOwnerId(rs.getInt("ownerId"));
 				a.setBalance(rs.getDouble("balance"));
 				a.setType(rs.getString("account_type"));
 				a.setApproved(rs.getBoolean("approved"));
@@ -89,15 +96,15 @@ public class AccountDaoDB implements AccountDao {
 	}
 
 	public List<Account> getAccountsByUser(User u) {
-		String query = "select * from account where owner_id=" +u.getId();
+		String query = "select * from account where ownerId=" +u.getId();
 		List<Account> accountList = new ArrayList<Account>();		
 		try {
 			stmt = conn.createStatement();
 			rs = stmt.executeQuery(query);
 			while(rs.next()) {
 				Account a = new Account();
-				a.setId(rs.getInt("id"));
-				a.setOwnerId(rs.getInt("owner_id"));
+				a.setId(rs.getInt("accountId"));
+				a.setOwnerId(rs.getInt("ownerId"));
 				a.setBalance(rs.getDouble("balance"));
 				a.setType(rs.getString("account_type"));
 				a.setApproved(rs.getBoolean("approved"));

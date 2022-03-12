@@ -12,7 +12,8 @@ import com.revature.dao.UserDaoFile;
 import com.revature.services.AccountService;
 import com.revature.services.UserService;
 import com.revature.utils.SessionCache;
-
+import com.revature.exceptions.OverdraftException;
+import com.revature.exceptions.UnauthorizedException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -21,11 +22,7 @@ import java.util.Scanner;
  * This is the entry point to the application
  */
 public class BankApplicationDriver {
-	//public static void printLine() {
-	//for(int i=0;i<2; i++) {
-	//		System.out.println("*");
-	//}
-	//}
+	
 		
 		public static void main(String[] args) 
 			{
@@ -43,13 +40,11 @@ public class BankApplicationDriver {
 		UserService userService = new UserService(userDao, accountDao);
 		AccountService accountService = new AccountService(accountDao); 
 		
-		
 		while(choice<6) {
-		//BankApplicationDriver.printLine();
+		
 		System.out.println("*=*=*=*=*=*=*=*=*=*=*=*=*");
 		System.out.println("WELCOME TO LIDDERS BANK");
 		System.out.println("*=*=*=*=*=*=*=*=*=*=*=*=*");
-		//BankApplicationDriver.printLine();
 		
 		System.out.println("1.Register");
 		System.out.println("2.Login");
@@ -90,14 +85,13 @@ public class BankApplicationDriver {
 					int accountType = 0;
 					double startingBalance = 0;
 
-					while (option <= 6) {
+					while (option <= 5) {
 						System.out.println("\t\t\t 1.Apply for new Account ");
 						System.out.println("\t\t\t 2.Deposit");
 						System.out.println("\t\t\t 3.Withdraw ");
 						System.out.println("\t\t\t 4.Fund Transfer ");
-						System.out.println("\t\t\t 5.Approve/Reject Account ");
-						System.out.println("\t\t\t 6.Logout ");
-						System.out.print("Enter your option [1-6]:");
+						System.out.println("\t\t\t 5.Logout ");
+						System.out.print("Enter your option [1-5]:");
 						option = s.nextInt();
 						switch (option) {
 						case 1:
@@ -116,26 +110,60 @@ public class BankApplicationDriver {
 							accountService.createNewAccount(loggedUser);
 							break;
 						case 2:
+							int accountId = 0 ;
+							double amount = 0;
 							System.out.println("Available Accounts for this user");
 							accountService.getAccounts(loggedUser).forEach(System.out::println);
 							System.out.print("Enter Account ID to Deposit :");
-							int accountId = 0 ;
 							accountId = s.nextInt();
-							System.out.print("Enter the amount to deposit :");
-							double amount = 0;
+							System.out.print("Enter the Amount to Deposit :");
 							amount = s.nextDouble();
 							account = accountDao.getAccount(accountId);
 							accountService.deposit(account, amount);
+							try { accountService.deposit(accountDao.getAccount(accountId), amount);
+							System.out.println("Amount deposited " + amount); 
+							System.out.println("Current balance is "+ accountDao.getAccount(accountId).getBalance());
+							}
+							catch (UnsupportedOperationException | UnauthorizedException e) { 
+							System.out.println("Sorry! Your funds can not be deposited at this time. Please try again");
+							e.printStackTrace(); 
+							}
 							break;
 						case 3:
+							System.out.println("Enter your Account Number ");
+							int accountId1 = s.nextInt();
+							System.out.println("How much would you like to withdraw?");
+							double amt1 = s.nextDouble();
+							try { 
+								accountService.withdraw(accountDao.getAccount(accountId1), amt1);
+								System.out.println("Amount withdrawn " + amt1);
+								System.out.println("\nCurrent balance is " + accountDao.getAccount(accountId1).getBalance());
+							} catch (OverdraftException | UnsupportedOperationException | UnauthorizedException e) {
+								System.out.println("Withdrawl Failure. Please try again");
+								e.printStackTrace();
+							}
 
 							break;
-						case 4:
+							case 4:System.out.println("Enter your Account Number ");
+							int fromAcc = s.nextInt();
+							System.out.println("Enter Account number of the Account you want to send to");
+							int toAcc = s.nextInt();
+							System.out.println("How much would you like to transfer?");
+							double amount3 = s.nextDouble();
+							try {
+								accountService.transfer(accountDao.getAccount(fromAcc), accountDao.getAccount(toAcc), amount3);
+								System.out.println("you've transferred " + amount3);
+								System.out.println("\nYour new account balance from the account you just took money $" +accountDao.getAccount(fromAcc).getBalance());
+								System.out.println("\nYour new account balance from the account you just sent to $" +accountDao.getAccount(toAcc).getBalance());
+							} catch (UnsupportedOperationException | UnauthorizedException e) {
+								System.out.println("INVALID. Please try again ");
+								e.printStackTrace();
+						}
+							
 
 							break;
+						
 						case 5:
-							break;
-						case 6:
 							System.out.print("Logout? (1.Yes/2.No) :");
 							int logout = 0;
 							logout = s.nextInt();
@@ -144,7 +172,7 @@ public class BankApplicationDriver {
 							}
 							break;
 						default:
-							System.out.println("Enter a number between 1 to 6");
+							System.out.println("Enter a number between 1 to 5");
 							break;
 						}
 
